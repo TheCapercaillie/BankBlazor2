@@ -8,6 +8,7 @@ namespace BankBlazor.Server.Data
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 
     public class Customer
@@ -17,11 +18,5 @@ namespace BankBlazor.Server.Data
         public ICollection<Account> Accounts { get; set; }
     }
 
-    public class Account
-    {
-        public int Id { get; set; }
-        public decimal Balance { get; set; }
-        public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
-    }
+    
 }
