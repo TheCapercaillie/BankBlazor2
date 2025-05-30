@@ -13,13 +13,11 @@ BankBlazor is a web banking application built using Blazor WebAssembly. It provi
   - Transfer money between accounts
 
 ## Used in development
-- **Frontend**: Blazor WebAssembly
-- **Backend**: ASP.NET Core Web API
-
-## Prerequisites
+- Blazor WebAssembly
+- ASP.NET Core Web API
 - .NET 8.0 SDK
 - Visual Studio 2022
-- WebAssembly workload
+- SQL Server Management Studio
 
 ## Process
 1. Clone the repository
