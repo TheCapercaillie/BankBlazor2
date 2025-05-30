@@ -35,7 +35,6 @@ BankBlazor is a web banking application built using Blazor WebAssembly. It provi
   - Layout/
   - Models/
   - Pages/
-  - Services/
 - **BankBlazor.Server**: Contains the ASP.NET Core backend
   - APIController/
   - Data/
