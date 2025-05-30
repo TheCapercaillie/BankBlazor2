@@ -1,79 +1,48 @@
 # BankBlazor - Web Banking Application
 
 ## Overview
-BankBlazor is a modern web banking application built using Blazor WebAssembly. It provides a user-friendly interface for customers to manage their bank accounts, view transactions, and perform various banking operations.
+BankBlazor is a web banking application built using Blazor WebAssembly. It provides a slick interface for customers to manage their bank accounts, view transactions, and more.
 
 ## Features
-- **Customer Profile**: View detailed customer information and account overview
-- **Account Management**: Access multiple account details and balances
-- **Transaction History**: View and sort transaction history with pagination
+- **Customer Profile**: View customer information and account overview
+- **Account Management**: Access account details and balances
+- **Transaction History**: View and sort transaction history
 - **Banking Operations**: 
   - Make deposits
   - Process withdrawals
   - Transfer money between accounts
 
-## Technical Implementation
+## Used in development
 - **Frontend**: Blazor WebAssembly
 - **Backend**: ASP.NET Core Web API
-- **Architecture**: Headless architecture with JSON communication
-- **Models**:
-  - Customer
-  - Account
-  - Transaction
-  - Disposition
 
 ## Prerequisites
 - .NET 8.0 SDK
 - Visual Studio 2022
 - WebAssembly workload
 
-## Installation
-1. Clone the repository:
-```bash
-git clone [repository-url]
-```
+## Process
+1. Clone the repository
 
-2. Ensure WebAssembly workload is installed:
-```bash
-dotnet workload install wasm-tools
-```
+2. Set up the project structure (Client/Server architecture)
 
-3. Navigate to the project directory:
-```bash
-cd BankBlazor2
-```
+3. Backend Development
 
-4. Restore dependencies:
-```bash
-dotnet restore
-```
+4. Frontend Development
 
-## Running the Application
-1. Build the solution:
-```bash
-dotnet build
-```
-
-2. Run the application:
-```bash
-dotnet run
-```
-
-3. Open your browser and navigate to:
-```
-https://localhost:7222
-```
+5. Bug Fixes & Improvements
 
 ## Project Structure
 - **BankBlazor.Client**: Contains the Blazor WebAssembly frontend
-  - Components/
+  - Layout/
   - Models/
   - Pages/
   - Services/
 - **BankBlazor.Server**: Contains the ASP.NET Core backend
-  - Controllers/
+  - APIController/
   - Data/
-  - Services/
+  - Connected Services/
+  - Models/
 
 ## API Endpoints
 All API endpoints are accessed through the `/api/Bank` route:
@@ -85,16 +54,12 @@ All API endpoints are accessed through the `/api/Bank` route:
 - POST `/api/Bank/transfer` - Transfer between accounts
 
 ## Development Workflow
-- Feature branches are used for development
-- Main branch contains stable releases
-- Pull requests are required for code review
-- Continuous integration ensures code quality
+I used feature branches a development branch and a main branch
+  
 
-## Troubleshooting
-If you encounter the browser-wasm runtime pack error, run the following command as administrator:
-```powershell
-dotnet workload install microsoft-net-sdk-blazorwebassembly-aot
-```
+## Trouble while developing
+I encountered a browser-wasm runtime pack error, that I couldnt fix in time that caused big trouble making me unable to check if the code was right. It was not a code related error.
 
-## Contributors
-[Jonathan Tjäder]
+
+## Developer
+**Jonathan Tjäder**
