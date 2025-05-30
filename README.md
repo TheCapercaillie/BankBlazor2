@@ -51,7 +51,7 @@ All API endpoints are accessed through the `/api/Bank` route:
 - POST `/api/Bank/transfer` - Transfer between accounts
 
 ## Development Workflow
-I used feature branches a development branch and a main branch
+I used feature branches, a development branch and a main branch
   
 
 ## Trouble while developing
