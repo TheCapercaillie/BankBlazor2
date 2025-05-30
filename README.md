@@ -55,7 +55,7 @@ I used feature branches, a development branch and a main branch
   
 
 ## Trouble while developing
-I encountered a browser-wasm runtime pack error, that I couldnt fix in time that caused big trouble making me unable to check if the code was right. It was not a code related error.
+I encountered a browser-wasm runtime pack error, that I couldnt fix in time that caused big trouble making me unable to check if the code was right. It was not a code related error but i believe it was a workload installment error.
 
 
 ## Developer
