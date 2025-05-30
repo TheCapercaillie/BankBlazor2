@@ -23,9 +23,9 @@ BankBlazor is a modern web banking application built using Blazor WebAssembly. I
   - Disposition
 
 ## Prerequisites
-- .NET 8.0 SDK or later
-- Visual Studio 2022 or later
-- WebAssembly workload installed
+- .NET 8.0 SDK
+- Visual Studio 2022
+- WebAssembly workload
 
 ## Installation
 1. Clone the repository:
