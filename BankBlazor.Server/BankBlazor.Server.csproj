@@ -4,10 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <ContainerRuntimeIdentifier>win-x64</ContainerRuntimeIdentifier>
-    <EnableSdkContainerDebugging>True</EnableSdkContainerDebugging>
-    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:8.0-nanoserver-1809</ContainerBaseImage>
     <UserSecretsId>d363998e-0885-45f4-a59b-22fb3b438754</UserSecretsId>
   </PropertyGroup>
 
