@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BankBlazor.Server.Models;
+namespace BankBlazor.Shared.Models;
 
 public partial class Customer
 {
-    public int CustomerId { get; set; }
+    public int Id { get; set; }
 
     public string Gender { get; set; } = null!;
 
@@ -23,7 +23,7 @@ public partial class Customer
 
     public string CountryCode { get; set; } = null!;
 
-    public DateOnly? Birthday { get; set; }
+    public DateTime? Birthday { get; set; }
 
     public string? NationalId { get; set; }
 
@@ -34,4 +34,8 @@ public partial class Customer
     public string? Emailaddress { get; set; }
 
     public virtual ICollection<Disposition> Dispositions { get; set; } = new List<Disposition>();
+
+    public ICollection<Account> Accounts { get; set; } = new List<Account>();
+
 }
+

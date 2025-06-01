@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BankBlazor.Client.Models;
+namespace BankBlazor.Shared.Models;
 
 public partial class Transaction
 {
-    public int TransactionId { get; set; }
+    public int Id { get; set; }
 
     public int AccountId { get; set; }
 
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
 
     public string Type { get; set; } = null!;
 

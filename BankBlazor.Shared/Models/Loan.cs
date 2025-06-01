@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BankBlazor.Server.Models;
+namespace BankBlazor.Shared.Models;
 
 public partial class Loan
 {

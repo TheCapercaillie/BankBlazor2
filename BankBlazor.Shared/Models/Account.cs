@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BankBlazor.Client.Models;
+namespace BankBlazor.Shared.Models;
 
 public partial class Account
 {
-    public int AccountId { get; set; }
+    public int Id { get; set; }
 
     public string Frequency { get; set; } = null!;
 

@@ -1,6 +1,7 @@
 ﻿using BankBlazor.Server.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BankBlazor.Shared.Models;
 
 namespace BankBlazor.Server.Controllers
 {

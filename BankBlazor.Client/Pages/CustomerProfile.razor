@@ -1,5 +1,5 @@
 ﻿@page "/customer/{Id:int}"
-@using BankBlazor.Client.Models
+@using BankBlazor.Shared.Models;
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
@@ -47,17 +47,17 @@
                             var account = disposition.Account;
                             <div class="account-card">
                                 <div class="account-header">
-                                    <h4>Account #@account.AccountId</h4>
+                                    <h4>Account #@account.Id</h4>
                                     <div class="balance">
                                         <span class="balance-label">Balance:</span>
                                         <span class="balance-amount">@account.Balance.ToString("C2")</span>
                                     </div>
                                 </div>
                                 <div class="account-actions">
-                                    <button class="btn btn-primary" @onclick="() => ShowTransactionModal(account.AccountId)">
+                                    <button class="btn btn-primary" @onclick="() => ShowTransactionModal(account.Id)">
                                         New Transaction
                                     </button>
-                                    <button class="btn btn-secondary" @onclick="() => NavigateToTransactions(account.AccountId)">
+                                    <button class="btn btn-secondary" @onclick="() => NavigateToTransactions(account.Id)">
                                         View History
                                     </button>
                                 </div>
@@ -129,7 +129,7 @@
     [Parameter]
     public int Id { get; set; }
 
-    private BankBlazor.Client.Models.Customer customer;
+    private BankBlazor.Shared.Models.Customer customer;
     private bool showTransactionModal;
     private int selectedAccountId;
     private string transactionType = "deposit";
@@ -146,7 +146,7 @@
     {
         try
         {
-            customer = await Http.GetFromJsonAsync<BankBlazor.Client.Models.Customer>($"api/Controller/{Id}");
+            customer = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Customer>($"api/Controller/{Id}");
             errorMessage = null;
         }
         catch (Exception ex)

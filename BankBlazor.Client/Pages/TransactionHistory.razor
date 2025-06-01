@@ -1,5 +1,5 @@
 ﻿@page "/account/{AccountId:int}/transactions"
-@using BankBlazor.Client.Models
+@using BankBlazor.Shared.Models;
 @inject HttpClient Http
 
 <div class="container">
@@ -112,8 +112,8 @@
     [Parameter]
     public int AccountId { get; set; }
 
-    private BankBlazor.Client.Models.Account account;
-    private List<BankBlazor.Client.Models.Transaction> transactions;
+    private BankBlazor.Shared.Models.Account account;
+    private List<BankBlazor.Shared.Models.Transaction> transactions;
     private bool loading = true;
     private DateTime? startDate;
     private DateTime? endDate;
@@ -134,7 +134,7 @@
     {
         try
         {
-            account = await Http.GetFromJsonAsync<BankBlazor.Client.Models.Account>($"api/Controller/accounts/{AccountId}");
+            account = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Account>($"api/Controller/accounts/{AccountId}");
         }
         catch (Exception ex)
         {
@@ -165,7 +165,7 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading transactions: {ex.Message}");
-            transactions = new List<BankBlazor.Client.Models.Transaction>();
+            transactions = new List<BankBlazor.Shared.Models.Transaction>();
         }
         finally
         {
@@ -199,7 +199,7 @@
         await LoadTransactions();
     }
 
-    private string GetTransactionClass(BankBlazor.Client.Models.Transaction transaction)
+    private string GetTransactionClass(BankBlazor.Shared.Models.Transaction transaction)
     {
         return transaction.Type.ToLower() switch
         {
@@ -212,7 +212,7 @@
 
     public class TransactionResponse
     {
-        public List<BankBlazor.Client.Models.Transaction> Transactions { get; set; }
+        public List<BankBlazor.Shared.Models.Transaction> Transactions { get; set; }
         public int TotalCount { get; set; }
     }
 }

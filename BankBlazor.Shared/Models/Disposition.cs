@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BankBlazor.Server.Models;
+namespace BankBlazor.Shared.Models;
 
 public partial class Disposition
 {
@@ -19,3 +19,4 @@ public partial class Disposition
 
     public virtual Customer Customer { get; set; } = null!;
 }
+

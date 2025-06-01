@@ -1,6 +1,0 @@
-@BankBlazor.Shared_HostAddress = http://localhost:5098
-
-GET {{BankBlazor.Shared_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

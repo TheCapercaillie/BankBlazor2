@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BankBlazor.Server\BankBlazor.Server.csproj" />
     <ProjectReference Include="..\BankBlazor.Shared\BankBlazor.Shared.csproj" />
   </ItemGroup>
 

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankBlazor.Client.Models;
+namespace BankBlazor.Shared.Models;
 
 public partial class PermenentOrder
 {
+    [Key]
     public int OrderId { get; set; }
 
+    [ForeignKey(nameof(Account))]
     public int AccountId { get; set; }
 
     public string BankTo { get; set; } = null!;
