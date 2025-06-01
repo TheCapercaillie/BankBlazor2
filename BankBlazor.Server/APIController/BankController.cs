@@ -26,12 +26,28 @@ namespace BankBlazor.Server.Controllers
             return customers;
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Customer>> GetCustomer(int id)
+        {
+            var customer = await _context.Customers
+                .Include(c => c.Dispositions)
+                    .ThenInclude(d => d.Account)
+                        .ThenInclude(a => a.Transactions)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer == null)
+                return NotFound();
+
+            return customer;
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
         {
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetCustomers), new { id = customer.Id }, customer);
+            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
         }
         [HttpGet("accounts/{id}/balance")]
         public async Task<ActionResult<decimal>> GetBalance(int id)

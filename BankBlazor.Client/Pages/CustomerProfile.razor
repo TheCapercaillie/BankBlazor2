@@ -146,7 +146,7 @@
     {
         try
         {
-            customer = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Customer>($"api/Controller/{Id}");
+            customer = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Customer>($"api/bank/{Id}");
             errorMessage = null;
         }
         catch (Exception ex)

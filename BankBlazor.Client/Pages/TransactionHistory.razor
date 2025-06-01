@@ -134,7 +134,7 @@
     {
         try
         {
-            account = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Account>($"api/Controller/accounts/{AccountId}");
+            account = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Account>($"api/bank/accounts/{AccountId}");
         }
         catch (Exception ex)
         {
@@ -147,7 +147,7 @@
         loading = true;
         try
         {
-            var query = $"api/Controller/accounts/{AccountId}/transactions?page={currentPage}&pageSize={pageSize}";
+            var query = $"api/bank/accounts/{AccountId}/transactions?page={currentPage}&pageSize={pageSize}";
             
             if (startDate.HasValue)
                 query += $"&startDate={startDate.Value:yyyy-MM-dd}";

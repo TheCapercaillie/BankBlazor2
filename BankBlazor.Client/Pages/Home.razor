@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
@@ -28,7 +29,25 @@
         <p><strong>Account Number:</strong> 123456789</p>
         <p><strong>Balance:</strong> $5,000</p>
     </div>
-    <button>Deposit</button>
-    <button>Withdraw</button>
-    <button>Transfer</button>
+    <div class="btn-group my-3">
+        <button class="btn btn-success me-2" @onclick="GoToDeposit">Deposit</button>
+        <button class="btn btn-warning me-2" @onclick="GoToWithdraw">Withdraw</button>
+        <button class="btn btn-info" @onclick="GoToTransfer">Transfer</button>
+    </div>
 </section>
+@code {
+    private void GoToDeposit()
+    {
+        NavigationManager.NavigateTo("/customer/1");
+    }
+
+    private void GoToWithdraw()
+    {
+        NavigationManager.NavigateTo("/customer/1");
+    }
+
+    private void GoToTransfer()
+    {
+        NavigationManager.NavigateTo("/customer/1");
+    }
+}
