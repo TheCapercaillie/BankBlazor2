@@ -7,11 +7,11 @@ namespace BankBlazor.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class Controller : ControllerBase
+    public class BankController : ControllerBase
     {
         private readonly BankContext _context;
 
-        public Controller(BankContext context)
+        public BankController(BankContext context)
         {
             _context = context;
         }
