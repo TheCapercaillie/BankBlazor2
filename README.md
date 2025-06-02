@@ -1,62 +1,113 @@
-# BankBlazor - Web Banking Application
+# BankBlazor
 
-## Overview
-BankBlazor is a web banking application built using Blazor WebAssembly. It provides a slick interface for customers to manage their bank accounts, view transactions, and more.
+## Overview  
+**BankBlazor** is a web-based banking application built using **Blazor WebAssembly**. It offers an interface for customers to manage their accounts, perform transactions, and view account activity.
 
-## Features
-- **Customer Profile**: View customer information and account overview
-- **Account Management**: Access account details and balances
-- **Transaction History**: View and sort transaction history
-- **Banking Operations**: 
-  - Make deposits
-  - Process withdrawals
-  - Transfer money between accounts
+## Features  
+- **Customer Profile**: View customer information  
+- **Account Management**: See account balances and IDs  
+- **Transaction History**: Browse, filter, and sort past transactions  
+- **Banking Operations**: Deposit money, Withdraw funds, Transfer between accounts  
 
-## Used in development
-- Blazor WebAssembly
-- ASP.NET Core Web API
-- .NET 8.0 SDK
-- Visual Studio 2022
-- SQL Server Management Studio
+## Used in development  
+- Blazor WebAssembly  
+- ASP.NET Core Web API  
+- .NET 8.0 SDK  
+- Visual Studio 2022  
+- SQL Server Management Studio  
+- Swagger
 
-## Process
-1. Clone the repository
+## Process  
+1. Cloned the repository  
+2. Set up the client/server structure  
+3. Built backend logic for API endpoints and DB access  
+4. Created pages/components in the frontend  
+5. Connected everything with HttpClient and routing
+6. Fixed bugs and made UI improvements
 
-2. Set up the project structure (Client/Server architecture)
+## Project Structure  
+Directory structure:
+└── thecapercaillie-bankblazor2/
+    ├── BankBlazor.sln
+    ├── BankBlazor.Client/
+    │   ├── _Imports.razor
+    │   ├── App.razor
+    │   ├── BankBlazor.Client.csproj
+    │   ├── Program.cs
+    │   ├── Layout/
+    │   │   ├── MainLayout.razor
+    │   │   ├── MainLayout.razor.css
+    │   │   ├── NavMenu.razor
+    │   │   └── NavMenu.razor.css
+    │   ├── Pages/
+    │   │   ├── AllCustomers.razor
+    │   │   ├── AllCustomers.razor.css
+    │   │   ├── CustomerProfile.razor
+    │   │   ├── CustomerProfile.razor.css
+    │   │   ├── Home.razor
+    │   │   ├── TransactionHistory.razor
+    │   │   └── TransactionHistory.razor.css
+    │   ├── Properties/
+    │   │   └── launchSettings.json
+    │   └── wwwroot/
+    │       ├── index.html
+    │       ├── css/
+    │       │   ├── app.css
+    │       │   └── bootstrap/
+    │       └── images/
+    ├── BankBlazor.Server/
+    │   ├── appsettings.Development.json
+    │   ├── appsettings.json
+    │   ├── BankBlazor.Server.csproj
+    │   ├── BankBlazor.Server.http
+    │   ├── Program.cs
+    │   ├── WeatherForecast.cs
+    │   ├── APIController/
+    │   │   └── BankController.cs
+    │   ├── Controllers/
+    │   │   └── WeatherForecastController.cs
+    │   ├── Data/
+    │   │   └── BankBlazorContext.cs
+    │   ├── Migrations/
+    │   │   ├── 20250601164432_InitialCreate.cs
+    │   │   ├── 20250601164432_InitialCreate.Designer.cs
+    │   │   └── BankContextModelSnapshot.cs
+    │   ├── Models/
+    │   │   ├── Account.cs
+    │   │   ├── Customer.cs
+    │   │   └── Transaction.cs
+    │   └── Properties/
+    │       └── launchSettings.json
+    └── BankBlazor.Shared/
+        ├── BankBlazor.Shared.csproj
+        └── Models/
+            └── DTOs/
+                ├── AccountDto.cs
+                ├── CustomerDto.cs
+                └── TransactionDto.cs
 
-3. Backend Development
+## API Endpoints  
+All API calls go through `/api/Bank`.  
+- `GET /api/Bank/customers/{id}`
+- `GET /api/Bank/customers`
+- `GET /api/Bank/accounts/{id}/transactions`
+- `POST /api/Bank/accounts/{id}/deposit`
+- `POST /api/Bank/accounts/{id}/withdraw`
+- `POST /api/Bank/transfer`
 
-4. Frontend Development
+Tested mostly through Swagger.
 
-5. Bug Fixes & Improvements
+## Development Workflow  
+Worked locally using branches for features.  
+Used a `development` branch for ongoing work, and merged into `main` when stable.
+Although I had some trouble using that workflow and ended up morking on the wrong branch all the time so in the latter half I only worked in the master branch for self conveniens and speed.
 
-## Project Structure
-- **BankBlazor.Client**: Contains the Blazor WebAssembly frontend
-  - Layout/
-  - Models/
-  - Pages/
-- **BankBlazor.Server**: Contains the ASP.NET Core backend
-  - APIController/
-  - Data/
-  - Connected Services/
-  - Models/
+## Trouble while developing  
+I ran into a tough nut to crack **browser-wasm runtime pack error** during development.  
+In the end it was an error caused by one class interfering with API routing because of name interference.  
+This caused delays since I couldn’t properly run or test the app for a while.
+Had hostly lots of trouble developing this app running into error after error slowing down the development.
+In the end I can proudly say there are no bugs or errors on my end.
 
-## API Endpoints
-All API endpoints are accessed through the `/api/Bank` route:
-- GET `/api/Bank/customers/{id}` - Get customer details
-- GET `/api/Bank/accounts/{id}` - Get account details
-- GET `/api/Bank/transactions` - Get transaction history
-- POST `/api/Bank/deposit` - Make a deposit
-- POST `/api/Bank/withdraw` - Make a withdrawal
-- POST `/api/Bank/transfer` - Transfer between accounts
-
-## Development Workflow
-I used feature branches, a development branch and a main branch
-  
-
-## Trouble while developing
-I encountered a browser-wasm runtime pack error, that I couldnt fix in time that caused big trouble making me unable to check if the code was right. It was not a code related error but i believe it was a workload installment error.
-
-
-## Developer
-**Jonathan Tjäder**
+## Developer  
+Jonathan Tjäder
