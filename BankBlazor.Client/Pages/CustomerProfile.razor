@@ -1,43 +1,116 @@
 ﻿@page "/customer/{Id:int}"
-@using BankBlazor.Shared.Models.DTOs
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
-<h2>Customer Profile</h2>
-
-@if (customer == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <div class="customer-info">
-        <p><strong>Name:</strong> @customer.Name</p>
-    </div>
-
-    <h3>Accounts</h3>
-    @if (customer.Accounts != null && customer.Accounts.Any())
+<div class="customer-profile">
+    @if (customer == null)
     {
-        <ul>
-            @foreach (var account in customer.Accounts)
-            {
-                <li>
-                    Account #@account.Id – Balance: @account.Balance.ToString("C2")
-                </li>
-            }
-        </ul>
+        <p>Loading customer data...</p>
     }
     else
     {
-        <p>No accounts found.</p>
+        <div class="customer-header">
+            <h2>Customer Profile: @customer.Name</h2>
+            <p>Customer ID: @customer.Id</p>
+        </div>
+
+        <div class="accounts-section">
+            <h3>Accounts</h3>
+            
+            @if (customer.Accounts != null && customer.Accounts.Any())
+            {
+                <table class="account-table">
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var account in customer.Accounts)
+                        {
+                            <tr>
+                                <td>@account.Id</td>
+                                <td>@account.Balance.ToString("C")</td>
+                                <td>
+                                    <button class="btn btn-primary" @onclick="() => ShowDepositDialog(account.Id)">Deposit</button>
+                                    <button class="btn btn-warning" @onclick="() => ShowWithdrawDialog(account.Id)">Withdraw</button>
+                                    <button class="btn btn-info" @onclick="() => ShowTransferDialog(account.Id)">Transfer</button>
+                                    <button class="btn btn-secondary" @onclick="() => ViewTransactions(account.Id)">Transactions</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No accounts found for this customer.</p>
+            }
+        </div>
     }
+</div>
+
+@if (showTransactionDialog)
+{
+    <div class="model-overlay">
+        <div class="model-content">
+            <h3>@(transactionType == "deposit" ? "Deposit" : "Withdrawal")</h3>
+            <div class="form-group">
+                <label>Amount:</label>
+                <input type="number" @bind="transactionAmount" class="form-control" />
+            </div>
+            <div class="model-actions">
+                <button class="btn btn-primary" @onclick="ProcessTransaction">Confirm</button>
+                <button class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showTransferDialog)
+{
+    <div class="model-overlay">
+        <div class="model-content">
+            <h3>Transfer Funds</h3>
+            <div class="form-group">
+                <label>From Account: @selectedAccountId</label>
+            </div>
+            <div class="form-group">
+                <label>To Account ID:</label>
+                <input type="number" @bind="transferToAccountId" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Amount:</label>
+                <input type="number" @bind="transferAmount" class="form-control" />
+            </div>
+            <div class="model-actions">
+                <button class="btn btn-primary" @onclick="ProcessTransfer">Transfer</button>
+                <button class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
     [Parameter] public int Id { get; set; }
-
+    
     private CustomerDto? customer;
+    private bool showTransactionDialog = false;
+    private bool showTransferDialog = false;
+    private int selectedAccountId;
+    private string transactionType = "";
+    private decimal transactionAmount;
+    private int transferToAccountId;
+    private decimal transferAmount;
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomerData();
+    }
+
+    private async Task LoadCustomerData()
     {
         try
         {
@@ -47,6 +120,98 @@ else
         {
             Console.WriteLine($"Error loading customer: {ex.Message}");
         }
+    }
+
+    private void ShowDepositDialog(int accountId) => ShowTransactionDialog(accountId, "deposit");
+    private void ShowWithdrawDialog(int accountId) => ShowTransactionDialog(accountId, "withdraw");
+
+    private void ShowTransactionDialog(int accountId, string type)
+    {
+        selectedAccountId = accountId;
+        transactionType = type;
+        transactionAmount = 0;
+        showTransactionDialog = true;
+    }
+
+    private void ShowTransferDialog(int fromAccountId)
+    {
+        selectedAccountId = fromAccountId;
+        transferToAccountId = 0;
+        transferAmount = 0;
+        showTransferDialog = true;
+    }
+
+    private void CloseDialog()
+    {
+        showTransactionDialog = false;
+        showTransferDialog = false;
+    }
+
+    public class TransferRequest
+{
+    public int FromAccountId { get; set; }
+    public int ToAccountId { get; set; }
+    public decimal Amount { get; set; }
+}
+
+    private async Task ProcessTransaction()
+    {
+        try
+        {
+            var endpoint = transactionType == "deposit" 
+                ? $"api/bank/accounts/{selectedAccountId}/deposit" 
+                : $"api/bank/accounts/{selectedAccountId}/withdraw";
+
+            var response = await Http.PostAsJsonAsync(endpoint, transactionAmount);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCustomerData();
+                CloseDialog();
+            }
+            else
+            {
+                Console.WriteLine($"Error processing transaction: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception processing transaction: {ex.Message}");
+        }
+    }
+
+    private async Task ProcessTransfer()
+    {
+        try
+        {
+            var request = new TransferRequest
+            {
+                FromAccountId = selectedAccountId,
+                ToAccountId = transferToAccountId,
+                Amount = transferAmount
+            };
+
+            var response = await Http.PostAsJsonAsync("api/bank/transfer", request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCustomerData();
+                CloseDialog();
+            }
+            else
+            {
+                Console.WriteLine($"Error processing transfer: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception processing transfer: {ex.Message}");
+        }
+    }
+
+    private void ViewTransactions(int accountId)
+    {
+        NavigationManager.NavigateTo($"/transactions/{accountId}");
     }
 }
 
