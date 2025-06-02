@@ -107,7 +107,7 @@ Although I had some trouble using that workflow and ended up working on the wron
 I ran into a tough nut to crack **browser-wasm runtime pack error** during development.  
 In the end it was an error caused by one class interfering with API routing because of name interfering.  
 This caused delays since I couldn’t properly run or test the app for a while.
-Had hostly lots of trouble developing this app running into error after error slowing down the development.
+Had hostly lots of trouble developing this app, running into error after error slowing down the development.
 In the end I can proudly say there are no bugs or errors on my end.
 
 ## Developer  
