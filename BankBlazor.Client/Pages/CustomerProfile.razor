@@ -5,13 +5,27 @@
 <div class="customer-profile">
     @if (customer == null)
     {
-        <p>Loading customer data...</p>
+        <p class="loading">Loading customer data...</p>
     }
     else
     {
         <div class="customer-header">
-            <h2>Customer Profile: @customer.Name</h2>
-            <p>Customer ID: @customer.Id</p>
+            <h2>@customer.Name's Profile</h2>
+            <div class="customer-id-badge">
+                Customer ID: @customer.Id
+                @if (customer.Id == 1)
+                {
+                    <span class="badge bg-primary">Primary</span>
+                }
+            </div>
+        </div>
+
+        <div class="account-switcher mb-4">
+            <label>Switch to:</label>
+            <select @bind="Id" class="form-select">
+                <option value="1">John Doe (ID: 1)</option>
+                <option value="2">Jane Smith (ID: 2)</option>
+            </select>
         </div>
 
         <div class="accounts-section">
@@ -46,7 +60,7 @@
             }
             else
             {
-                <p>No accounts found for this customer.</p>
+                <p class="no-accounts">No accounts found for this customer.</p>
             }
         </div>
     }
@@ -105,15 +119,32 @@
     private int transferToAccountId;
     private decimal transferAmount;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        await LoadCustomerData();
+        // Ensure valid account (only 1 or 2)
+        if (Id != 1 && Id != 2) 
+        {
+            NavigationManager.NavigateTo("/customer/1");
+        }
+        else
+        {
+            InvokeAsync(LoadCustomerData);
+        }
+    }
+
+    private void HandleAccountSwitch(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newId))
+        {
+            NavigationManager.NavigateTo($"/customer/{newId}");
+        }
     }
 
     private async Task LoadCustomerData()
     {
         try
         {
+            customer = null; // Clear while loading
             customer = await Http.GetFromJsonAsync<CustomerDto>($"api/bank/customers/{Id}");
         }
         catch (Exception ex)
@@ -148,11 +179,11 @@
     }
 
     public class TransferRequest
-{
-    public int FromAccountId { get; set; }
-    public int ToAccountId { get; set; }
-    public decimal Amount { get; set; }
-}
+    {
+        public int FromAccountId { get; set; }
+        public int ToAccountId { get; set; }
+        public decimal Amount { get; set; }
+    }
 
     private async Task ProcessTransaction()
     {

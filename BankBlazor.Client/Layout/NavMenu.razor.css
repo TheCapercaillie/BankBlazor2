@@ -65,6 +65,16 @@
     color: white;
 }
 
+.nav-select {
+    background: transparent;
+    border: 1px solid #dee2e6;
+    color: inherit;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-left: 1rem;
+    cursor: pointer;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
