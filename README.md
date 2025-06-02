@@ -88,19 +88,19 @@ Models/
       TransactionDto.cs
 
 ## API Endpoints  
-All API calls go through `/api/Bank`.  
-- `GET /api/Bank/customers/{id}`
-- `GET /api/Bank/customers`
-- `GET /api/Bank/accounts/{id}/transactions`
-- `POST /api/Bank/accounts/{id}/deposit`
-- `POST /api/Bank/accounts/{id}/withdraw`
-- `POST /api/Bank/transfer`
+All API calls go through /api/Bank.  
+- GET /api/Bank/customers/{id}
+- GET /api/Bank/customers
+- GET /api/Bank/accounts/{id}/transactions
+- POST /api/Bank/accounts/{id}/deposit
+- POST /api/Bank/accounts/{id}/withdraw
+- POST /api/Bank/transfer
 
 Tested mostly through Swagger.
 
 ## Development Workflow  
 Worked locally using branches for features.  
-Used a `development` branch for ongoing work, and merged into `main` when stable.
+Used a development branch for ongoing work, and merged into the master branch when stable.
 Although I had some trouble using that workflow and ended up morking on the wrong branch all the time so in the latter half I only worked in the master branch for self conveniens and speed.
 
 ## Trouble while developing  
