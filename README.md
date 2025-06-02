@@ -101,7 +101,7 @@ Tested mostly through Swagger.
 ## Development Workflow  
 Worked locally using branches for features.  
 Used a development branch for ongoing work, and merged into the master branch when stable.
-Although I had some trouble using that workflow and ended up morking on the wrong branch all the time so in the latter half I only worked in the master branch for self conveniens and speed.
+Although I had some trouble using that workflow and ended up working on the wrong branch all the time so in the latter half I only worked in the master branch for self conveniens and speed.
 
 ## Trouble while developing  
 I ran into a tough nut to crack **browser-wasm runtime pack error** during development.  
