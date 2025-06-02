@@ -1,0 +1,82 @@
+﻿@page "/customers"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h2>All Customers</h2>
+
+@if (customers == null)
+{
+    <p>Loading customers...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.Id</td>
+                    <td>@customer.Name</td>
+                    <td>
+                        <button class="btn btn-primary"
+                                @onclick="() => ShowConfirmation(customer.Id, customer.Name)">
+                            Select Account
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@if (showConfirmation)
+{
+    <div class="dialog-overlay">
+        <div class="dialog">
+            <h3>Confirm Account Switch</h3>
+            <p>Switch to @selectedCustomerName's account?</p>
+            <div class="dialog-actions">
+                <button class="btn btn-primary" @onclick="ConfirmSwitch">Confirm</button>
+                <button class="btn btn-secondary" @onclick="CancelSwitch">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<CustomerDto>? customers;
+    private bool showConfirmation = false;
+    private int selectedCustomerId;
+    private string selectedCustomerName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await Http.GetFromJsonAsync<List<CustomerDto>>("api/bank/customers");
+    }
+
+    private void ShowConfirmation(int customerId, string customerName)
+    {
+        selectedCustomerId = customerId;
+        selectedCustomerName = customerName;
+        showConfirmation = true;
+    }
+
+    private void ConfirmSwitch()
+    {
+        NavigationManager.NavigateTo($"/customer/{selectedCustomerId}");
+        showConfirmation = false;
+    }
+
+    private void CancelSwitch()
+    {
+        showConfirmation = false;
+    }
+}

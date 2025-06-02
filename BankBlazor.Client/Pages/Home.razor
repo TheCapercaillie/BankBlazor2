@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
@@ -13,41 +14,53 @@
     <h2>Hello Admin!</h2>
 </section>
 
-
-<section id="dashboard" class="container">
-    <h2>Customer Dashboard</h2>
-    <div class="info">
-        <p><strong>Name:</strong> John Doe</p>
-        <p><strong>Email:</strong> johndoe@email.com</p>
-        <p><strong>Phone:</strong> +1234567890</p>
-    </div>
-</section>
-
 <section id="transactions" class="container">
     <h2>Account Transactions</h2>
-    <div class="account">
-        <p><strong>Account Number:</strong> 123456789</p>
-        <p><strong>Balance:</strong> $5,000</p>
-    </div>
-    <div class="btn-group my-3">
-        <button class="btn btn-success me-2" @onclick="GoToDeposit">Deposit</button>
-        <button class="btn btn-warning me-2" @onclick="GoToWithdraw">Withdraw</button>
-        <button class="btn btn-info" @onclick="GoToTransfer">Transfer</button>
-    </div>
+    @if (customer == null)
+    {
+        <p>Loading account info...</p>
+    }
+    else
+    {
+        var firstAccount = customer.Accounts.FirstOrDefault();
+        if (firstAccount != null)
+        {
+            <div class="account">
+                <p><strong>Customer:</strong> @customer.Name (ID: @customer.Id)</p>
+                <p><strong>Account ID:</strong> @firstAccount.Id</p>
+                <p><strong>Balance:</strong> @firstAccount.Balance.ToString("C2")</p>
+            </div>
+
+            <div class="btn-group my-3">
+                <button class="btn btn-success me-2" @onclick="() => GoToTransaction(customer.Id)">Deposit</button>
+                <button class="btn btn-warning me-2" @onclick="() => GoToTransaction(customer.Id)">Withdraw</button>
+                <button class="btn btn-info" me-2 @onclick="() => GoToTransaction(customer.Id)">Transfer</button>
+            </div>
+        }
+        else
+        {
+            <p>This customer has no accounts.</p>
+        }
+    }
 </section>
+
 @code {
-    private void GoToDeposit()
+    private CustomerDto? customer;
+
+    protected override async Task OnInitializedAsync()
     {
-        NavigationManager.NavigateTo("/customer/1");
+        try
+        {
+            customer = await Http.GetFromJsonAsync<CustomerDto>("api/bank/customers/1");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading customer data: {ex.Message}");
+        }
     }
 
-    private void GoToWithdraw()
+    private void GoToTransaction(int customerId)
     {
-        NavigationManager.NavigateTo("/customer/1");
-    }
-
-    private void GoToTransfer()
-    {
-        NavigationManager.NavigateTo("/customer/1");
+        NavigationManager.NavigateTo($"/customer/{customerId}");
     }
 }

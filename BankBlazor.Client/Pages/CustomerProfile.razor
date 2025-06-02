@@ -20,12 +20,10 @@
             </div>
         </div>
 
-        <div class="account-switcher mb-4">
-            <label>Switch to:</label>
-            <select @bind="Id" class="form-select">
-                <option value="1">John Doe (ID: 1)</option>
-                <option value="2">Jane Smith (ID: 2)</option>
-            </select>
+        <div class="account-actions">
+            <button class="btn btn-secondary" @onclick="NavigateToAllCustomers">
+                Switch Account
+            </button>
         </div>
 
         <div class="accounts-section">
@@ -51,7 +49,8 @@
                                     <button class="btn btn-primary" @onclick="() => ShowDepositDialog(account.Id)">Deposit</button>
                                     <button class="btn btn-warning" @onclick="() => ShowWithdrawDialog(account.Id)">Withdraw</button>
                                     <button class="btn btn-info" @onclick="() => ShowTransferDialog(account.Id)">Transfer</button>
-                                    <button class="btn btn-secondary" @onclick="() => ViewTransactions(account.Id)">Transactions</button>
+                                    <button class="btn btn-secondary" @onclick="() => ViewTransactions(account.Id, customer.Id)">Transactions</button>
+
                                 </td>
                             </tr>
                         }
@@ -109,8 +108,9 @@
 
 @code {
     [Parameter] public int Id { get; set; }
-    
+
     private CustomerDto? customer;
+    private List<CustomerDto>? allCustomers;
     private bool showTransactionDialog = false;
     private bool showTransferDialog = false;
     private int selectedAccountId;
@@ -119,24 +119,41 @@
     private int transferToAccountId;
     private decimal transferAmount;
 
-    protected override void OnParametersSet()
+    protected override async Task OnInitializedAsync()
     {
-        // Ensure valid account (only 1 or 2)
-        if (Id != 1 && Id != 2) 
+        await LoadAllCustomers();
+        await LoadCustomerData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Ensure valid customer ID exists in our list
+        if (allCustomers != null && !allCustomers.Any(c => c.Id == Id))
         {
-            NavigationManager.NavigateTo("/customer/1");
+            NavigationManager.NavigateTo($"/customer/{allCustomers.First().Id}");
         }
         else
         {
-            InvokeAsync(LoadCustomerData);
+            await LoadCustomerData();
         }
     }
-
     private void HandleAccountSwitch(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int newId))
         {
             NavigationManager.NavigateTo($"/customer/{newId}");
+        }
+    }
+
+    private async Task LoadAllCustomers()
+    {
+        try
+        {
+            allCustomers = await Http.GetFromJsonAsync<List<CustomerDto>>("api/bank/customers");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading customers: {ex.Message}");
         }
     }
 
@@ -151,6 +168,11 @@
         {
             Console.WriteLine($"Error loading customer: {ex.Message}");
         }
+    }
+
+    private void NavigateToAllCustomers()
+    {
+        NavigationManager.NavigateTo("/customers");
     }
 
     private void ShowDepositDialog(int accountId) => ShowTransactionDialog(accountId, "deposit");
@@ -240,9 +262,10 @@
         }
     }
 
-    private void ViewTransactions(int accountId)
-    {
-        NavigationManager.NavigateTo($"/transactions/{accountId}");
-    }
+    private void ViewTransactions(int accountId, int customerId)
+{
+    NavigationManager.NavigateTo($"/transactions/{accountId}/{customerId}");
+}
+
 }
 

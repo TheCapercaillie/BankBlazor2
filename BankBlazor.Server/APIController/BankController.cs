@@ -40,6 +40,20 @@ namespace BankBlazor.Server.Controllers
             return Ok(dto);
         }
 
+        [HttpGet("customers")]
+        public async Task<ActionResult<List<CustomerDto>>> GetAllCustomers()
+        {
+            var customers = await _context.Customers
+                .Select(c => new CustomerDto
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })
+                .ToListAsync();
+
+            return Ok(customers);
+        }
+
         [HttpPost("accounts/{id}/deposit")]
         public async Task<IActionResult> Deposit(int id, [FromBody] decimal amount)
         {

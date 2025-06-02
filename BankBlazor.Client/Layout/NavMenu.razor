@@ -1,21 +1,22 @@
-﻿<header>
-    <NavLink href="/" class="logo">
-        <img src="images/logo.png" alt="Bank Blazor Logo">
-        <h1 class="header-text">Bank Blazor</h1>
-    </NavLink>
-    <nav>
-        <ul class="nav-items">
-            <li><NavLink href="/" Match="NavLinkMatch.All">Home</NavLink></li>
-            <li><NavLink href="/customer/1">My Profile</NavLink></li>
-            <li><NavLink href="/customers">All Customers</NavLink></li>
-        </ul>
-
-    </nav>
+﻿<header class="top-nav">
+    <div class="nav-left">
+        <NavLink href="/" class="logo">
+            <img src="images/logo.png" alt="Bank Blazor Logo" />
+            <h1 class="header-text">Bank Blazor</h1>
+        </NavLink>
+    </div>
+    <div class="nav-right">
+        <NavLink href="/" class="nav-btn">Home</NavLink>
+        <NavLink href="/customer/1" class="nav-btn">My Profile</NavLink>
+        <NavLink href="/customers" class="nav-btn">Switch Accounts</NavLink>
+    </div>
 </header>
 
 @code {
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private int? currentCustomerId;
+
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;

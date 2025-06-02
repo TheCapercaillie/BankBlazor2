@@ -1,4 +1,4 @@
-﻿@page "/transactions/{AccountId:int}"
+﻿@page "/transactions/{AccountId:int}/{CustomerId:int}"
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
@@ -39,8 +39,10 @@
     }
 </div>
 
-@code {
+@code 
+{
     [Parameter] public int AccountId { get; set; }
+    [Parameter] public int CustomerId { get; set; }
 
     private List<TransactionDto>? transactions;
 
@@ -63,6 +65,6 @@
 
     private void ReturnToCustomer()
     {
-        NavigationManager.NavigateTo("/customer/1");
+        NavigationManager.NavigateTo($"/customer/{CustomerId}");
     }
 }
