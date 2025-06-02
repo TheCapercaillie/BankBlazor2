@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BankBlazor.Server.Migrations
 {
-    [DbContext(typeof(BankContext))]
+    [DbContext(typeof(BankBlazorContext))]
     [Migration("20250601164432_InitialCreate")]
     partial class InitialCreate
     {

@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using BankBlazor.Server.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankBlazor.Server.Models;
+namespace BankBlazor.Server.Data;
 
-public partial class BankContext : DbContext
+public partial class BankBlazorContext : DbContext
 {
-    public BankContext()
+    public BankBlazorContext()
     {
     }
 
-    public BankContext(DbContextOptions<BankContext> options)
+    public BankBlazorContext(DbContextOptions<BankBlazorContext> options)
         : base(options)
     {
     }
@@ -22,7 +23,8 @@ public partial class BankContext : DbContext
     public virtual DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=BankBlazor;Trusted_Connection=True;TrustServerCertificate=true;Command Timeout=180");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=localhost;Database=BankBlazor;Trusted_Connection=True;TrustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

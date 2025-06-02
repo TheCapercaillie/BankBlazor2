@@ -1,218 +1,58 @@
-﻿@page "/account/{AccountId:int}/transactions"
-@using BankBlazor.Shared.Models;
+﻿@page "/account/{AccountId:int}"
+@using BankBlazor.Shared.Models.DTOs
 @inject HttpClient Http
 
-<div class="container">
-    <section class="transactions-section">
-        <div class="transactions-header">
-            <h2>Transaction History</h2>
-            <div class="account-info">
-                <p><strong>Account ID:</strong> @AccountId</p>
-                @if (account != null)
-                {
-                    <p><strong>Current Balance:</strong> @account.Balance.ToString("C2")</p>
-                }
-            </div>
-        </div>
+<h2>Transaction History</h2>
 
-        <div class="filters">
-            <div class="filter-group">
-                <label>Date Range:</label>
-                <input type="date" class="form-control" @bind="startDate" />
-                <span>to</span>
-                <input type="date" class="form-control" @bind="endDate" />
-            </div>
-            <div class="filter-group">
-                <label>Type:</label>
-                <select class="form-control" @bind="selectedType">
-                    <option value="">All</option>
-                    <option value="deposit">Deposits</option>
-                    <option value="withdraw">Withdrawals</option>
-                    <option value="transfer">Transfers</option>
-                </select>
-            </div>
-            <button class="btn btn-primary" @onclick="ApplyFilters">Apply Filters</button>
-        </div>
-
-        @if (loading)
-        {
-            <div class="loading">Loading transactions...</div>
-        }
-        else if (transactions == null || !transactions.Any())
-        {
-            <div class="no-transactions">
-                <p>No transactions found for the selected criteria.</p>
-            </div>
-        }
-        else
-        {
-            <div class="transactions-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th @onclick="@(() => SortBy("Date"))">
-                                Date
-                                @if (sortField == "Date")
-                                {
-                                    <span class="sort-indicator">@(sortAscending ? "↑" : "↓")</span>
-                                }
-                            </th>
-                            <th @onclick="@(() => SortBy("Type"))">
-                                Type
-                                @if (sortField == "Type")
-                                {
-                                    <span class="sort-indicator">@(sortAscending ? "↑" : "↓")</span>
-                                }
-                            </th>
-                            <th @onclick="@(() => SortBy("Amount"))">
-                                Amount
-                                @if (sortField == "Amount")
-                                {
-                                    <span class="sort-indicator">@(sortAscending ? "↑" : "↓")</span>
-                                }
-                            </th>
-                            <th>Description</th>
-                            <th>Balance After</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var transaction in transactions)
-                        {
-                            <tr class="@GetTransactionClass(transaction)">
-                                <td>@transaction.Date.ToString("g")</td>
-                                <td>@transaction.Type</td>
-                                <td class="amount">@transaction.Amount.ToString("C2")</td>
-                                <td>@transaction.Operation</td>
-                                <td>@transaction.Balance.ToString("C2")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="pagination">
-                @for (int i = 1; i <= totalPages; i++)
-                {
-                    var pageNumber = i;
-                    <button class="@(pageNumber == currentPage ? "active" : "")"
-                            @onclick="() => LoadPage(pageNumber)">
-                        @i
-                    </button>
-                }
-            </div>
-        }
-    </section>
-</div>
-
-<style>
-    /* ... existing styles ... */
-</style>
+@if (transactions == null)
+{
+    <p>Loading...</p>
+}
+else if (!transactions.Any())
+{
+    <p>No transactions found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Operation</th>
+                <th>Balance After</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tx in transactions)
+            {
+                <tr>
+                    <td>@tx.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@tx.Type</td>
+                    <td>@tx.Amount.ToString("C2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
     [Parameter]
     public int AccountId { get; set; }
 
-    private BankBlazor.Shared.Models.Account account;
-    private List<BankBlazor.Shared.Models.Transaction> transactions;
-    private bool loading = true;
-    private DateTime? startDate;
-    private DateTime? endDate;
-    private string selectedType = "";
-    private string sortField = "Date";
-    private bool sortAscending = false;
-    private int currentPage = 1;
-    private int pageSize = 10;
-    private int totalPages = 1;
+    private List<TransactionDto>? transactions;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadAccountData();
-        await LoadTransactions();
-    }
-
-    private async Task LoadAccountData()
-    {
         try
         {
-            account = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Account>($"api/bank/accounts/{AccountId}");
+            transactions = await Http.GetFromJsonAsync<List<TransactionDto>>($"api/bank/accounts/{AccountId}/transactions");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading account data: {ex.Message}");
+            Console.WriteLine($"Failed to load transactions: {ex.Message}");
+            transactions = new();
         }
-    }
-
-    private async Task LoadTransactions()
-    {
-        loading = true;
-        try
-        {
-            var query = $"api/bank/accounts/{AccountId}/transactions?page={currentPage}&pageSize={pageSize}";
-            
-            if (startDate.HasValue)
-                query += $"&startDate={startDate.Value:yyyy-MM-dd}";
-            if (endDate.HasValue)
-                query += $"&endDate={endDate.Value:yyyy-MM-dd}";
-            if (!string.IsNullOrEmpty(selectedType))
-                query += $"&type={selectedType}";
-            
-            query += $"&sortField={sortField}&sortAscending={sortAscending}";
-
-            var response = await Http.GetFromJsonAsync<TransactionResponse>(query);
-            transactions = response.Transactions;
-            totalPages = (int)Math.Ceiling(response.TotalCount / (double)pageSize);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading transactions: {ex.Message}");
-            transactions = new List<BankBlazor.Shared.Models.Transaction>();
-        }
-        finally
-        {
-            loading = false;
-        }
-    }
-
-    private async Task ApplyFilters()
-    {
-        currentPage = 1;
-        await LoadTransactions();
-    }
-
-    private async Task LoadPage(int page)
-    {
-        currentPage = page;
-        await LoadTransactions();
-    }
-
-    private async Task SortBy(string field)
-    {
-        if (sortField == field)
-        {
-            sortAscending = !sortAscending;
-        }
-        else
-        {
-            sortField = field;
-            sortAscending = true;
-        }
-        await LoadTransactions();
-    }
-
-    private string GetTransactionClass(BankBlazor.Shared.Models.Transaction transaction)
-    {
-        return transaction.Type.ToLower() switch
-        {
-            "deposit" => "deposit",
-            "withdraw" => "withdraw",
-            "transfer" => "transfer",
-            _ => ""
-        };
-    }
-
-    public class TransactionResponse
-    {
-        public List<BankBlazor.Shared.Models.Transaction> Transactions { get; set; }
-        public int TotalCount { get; set; }
     }
 }

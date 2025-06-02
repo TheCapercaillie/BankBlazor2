@@ -1,222 +1,52 @@
 ﻿@page "/customer/{Id:int}"
-@using BankBlazor.Shared.Models;
+@using BankBlazor.Shared.Models.DTOs
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
 
-<div class="container">
-    <section class="profile-section">
-        @if (customer == null)
-        {
-            <div class="loading">Loading...</div>
-        }
-        else
-        {
-            <div class="profile-header">
-                <h2>Customer Profile</h2>
-                <div class="customer-info">
-                    <div class="info-grid">
-                        <div class="info-group">
-                            <h3>Personal Information</h3>
-                            <p><strong>Name:</strong> @customer.Givenname @customer.Surname</p>
-                            <p><strong>Gender:</strong> @customer.Gender</p>
-                            <p><strong>Birthday:</strong> @(customer.Birthday.HasValue ? customer.Birthday.Value.ToString("d") : "Not specified")</p>
-                            <p><strong>National ID:</strong> @customer.NationalId</p>
-                        </div>
-                        <div class="info-group">
-                            <h3>Contact Information</h3>
-                            <p><strong>Email:</strong> @customer.Emailaddress</p>
-                            <p><strong>Phone:</strong> +@customer.Telephonecountrycode @customer.Telephonenumber</p>
-                        </div>
-                        <div class="info-group">
-                            <h3>Address</h3>
-                            <p>@customer.Streetaddress</p>
-                            <p>@customer.City, @customer.Zipcode</p>
-                            <p>@customer.Country (@customer.CountryCode)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<h2>Customer Profile</h2>
 
-            <div class="accounts-section">
-                <h3>Your Accounts</h3>
-                @if (customer.Dispositions != null && customer.Dispositions.Any())
-                {
-                    <div class="accounts-grid">
-                        @foreach (var disposition in customer.Dispositions)
-                        {
-                            var account = disposition.Account;
-                            <div class="account-card">
-                                <div class="account-header">
-                                    <h4>Account #@account.Id</h4>
-                                    <div class="balance">
-                                        <span class="balance-label">Balance:</span>
-                                        <span class="balance-amount">@account.Balance.ToString("C2")</span>
-                                    </div>
-                                </div>
-                                <div class="account-actions">
-                                    <button class="btn btn-primary" @onclick="() => ShowTransactionModal(account.Id)">
-                                        New Transaction
-                                    </button>
-                                    <button class="btn btn-secondary" @onclick="() => NavigateToTransactions(account.Id)">
-                                        View History
-                                    </button>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="no-accounts">No accounts found.</p>
-                }
-            </div>
-        }
-    </section>
+@if (customer == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="customer-info">
+        <p><strong>Name:</strong> @customer.Name</p>
+    </div>
 
-    @if (showTransactionModal)
+    <h3>Accounts</h3>
+    @if (customer.Accounts != null && customer.Accounts.Any())
     {
-        <div class="modal-backdrop" @onclick="CloseModal"></div>
-        <div class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>New Transaction</h3>
-                    <button class="close-button" @onclick="CloseModal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Transaction Type</label>
-                        <select class="form-control" @bind="transactionType">
-                            <option value="deposit">Deposit</option>
-                            <option value="withdraw">Withdraw</option>
-                            <option value="transfer">Transfer</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Amount</label>
-                        <input type="number" class="form-control" @bind="amount" step="0.01" min="0" />
-                    </div>
-
-                    @if (transactionType == "transfer")
-                    {
-                        <div class="form-group">
-                            <label>To Account ID</label>
-                            <input type="number" class="form-control" @bind="toAccountId" />
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <div class="alert alert-danger">
-                            @errorMessage
-                        </div>
-                    }
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
-                    <button class="btn btn-primary" @onclick="ProcessTransaction">Submit</button>
-                </div>
-            </div>
-        </div>
+        <ul>
+            @foreach (var account in customer.Accounts)
+            {
+                <li>
+                    Account #@account.Id – Balance: @account.Balance.ToString("C2")
+                </li>
+            }
+        </ul>
     }
-</div>
-
-<style>
-    /* ... existing styles ... */
-</style>
+    else
+    {
+        <p>No accounts found.</p>
+    }
+}
 
 @code {
-    [Parameter]
-    public int Id { get; set; }
+    [Parameter] public int Id { get; set; }
 
-    private BankBlazor.Shared.Models.Customer customer;
-    private bool showTransactionModal;
-    private int selectedAccountId;
-    private string transactionType = "deposit";
-    private decimal amount;
-    private int toAccountId;
-    private string errorMessage;
+    private CustomerDto? customer;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCustomerData();
-    }
-
-    private async Task LoadCustomerData()
-    {
         try
         {
-            customer = await Http.GetFromJsonAsync<BankBlazor.Shared.Models.Customer>($"api/bank/{Id}");
-            errorMessage = null;
+            customer = await Http.GetFromJsonAsync<CustomerDto>($"api/bank/customers/{Id}");
         }
         catch (Exception ex)
         {
-            errorMessage = "Error loading customer data. Please try again later.";
-            Console.WriteLine($"Error loading customer data: {ex.Message}");
+            Console.WriteLine($"Error loading customer: {ex.Message}");
         }
-    }
-
-    private void ShowTransactionModal(int accountId)
-    {
-        selectedAccountId = accountId;
-        showTransactionModal = true;
-        amount = 0;
-        toAccountId = 0;
-        errorMessage = null;
-    }
-
-    private void CloseModal()
-    {
-        showTransactionModal = false;
-        errorMessage = null;
-    }
-
-    private async Task ProcessTransaction()
-    {
-        try
-        {
-            if (amount <= 0)
-            {
-                errorMessage = "Amount must be greater than zero.";
-                return;
-            }
-
-            switch (transactionType)
-            {
-                case "deposit":
-                    await Http.PostAsJsonAsync($"api/Controller/accounts/{selectedAccountId}/deposit", amount);
-                    break;
-                case "withdraw":
-                    await Http.PostAsJsonAsync($"api/Controller/accounts/{selectedAccountId}/withdraw", amount);
-                    break;
-                case "transfer":
-                    if (toAccountId == 0)
-                    {
-                        errorMessage = "Please enter a valid destination account.";
-                        return;
-                    }
-                    var request = new
-                    {
-                        FromAccountId = selectedAccountId,
-                        ToAccountId = toAccountId,
-                        Amount = amount
-                    };
-                    await Http.PostAsJsonAsync("api/Controller/transfer", request);
-                    break;
-            }
-
-            await LoadCustomerData();
-            CloseModal();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Transaction failed. Please try again.";
-            Console.WriteLine($"Error processing transaction: {ex.Message}");
-        }
-    }
-
-    private void NavigateToTransactions(int accountId)
-    {
-        NavigationManager.NavigateTo($"/account/{accountId}/transactions");
     }
 }
+

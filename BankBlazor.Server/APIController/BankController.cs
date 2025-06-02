@@ -1,7 +1,8 @@
 ﻿using BankBlazor.Server.Data;
+using BankBlazor.Server.Models;
+using BankBlazor.Shared.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BankBlazor.Shared.Models;
 
 namespace BankBlazor.Server.Controllers
 {
@@ -9,186 +10,115 @@ namespace BankBlazor.Server.Controllers
     [Route("api/[controller]")]
     public class BankController : ControllerBase
     {
-        private readonly BankContext _context;
+        private readonly BankBlazorContext _context;
 
-        public BankController(BankContext context)
+        public BankController(BankBlazorContext context)
         {
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
-        {
-            var customers = await _context.Customers
-                .Include(c => c.Accounts)
-                .ToListAsync();
-
-            return customers;
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(int id)
+        [HttpGet("customers/{id}")]
+        public async Task<ActionResult<CustomerDto>> GetCustomerById(int id)
         {
             var customer = await _context.Customers
-                .Include(c => c.Dispositions)
-                    .ThenInclude(d => d.Account)
-                        .ThenInclude(a => a.Transactions)
+                .Include(c => c.Accounts)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (customer == null)
-                return NotFound();
+            if (customer == null) return NotFound();
 
-            return customer;
-        }
+            var dto = new CustomerDto
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                Accounts = customer.Accounts.Select(a => new AccountDto
+                {
+                    Id = a.Id,
+                    Balance = a.Balance
+                }).ToList()
+            };
 
-
-        [HttpPost]
-        public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
-        {
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
-        }
-        [HttpGet("accounts/{id}/balance")]
-        public async Task<ActionResult<decimal>> GetBalance(int id)
-        {
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
-                return NotFound();
-
-            return account.Balance;
+            return Ok(dto);
         }
 
         [HttpPost("accounts/{id}/deposit")]
-        public async Task<ActionResult<Account>> Deposit(int id, [FromBody] decimal amount)
+        public async Task<IActionResult> Deposit(int id, [FromBody] decimal amount)
         {
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
-                return NotFound();
+            if (amount <= 0) return BadRequest("Invalid amount");
 
-            if (amount <= 0)
-                return BadRequest("Deposit amount must be positive");
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound();
 
             account.Balance += amount;
-
-            var transaction = new Transaction
+            _context.Transactions.Add(new Transaction
             {
                 AccountId = id,
                 Amount = amount,
                 Type = "Deposit",
                 Date = DateTime.UtcNow
-            };
-            _context.Transactions.Add(transaction);
+            });
 
             await _context.SaveChangesAsync();
-            return Ok(account);
+            return Ok();
         }
 
         [HttpPost("accounts/{id}/withdraw")]
-        public async Task<ActionResult<Account>> Withdraw(int id, [FromBody] decimal amount)
+        public async Task<IActionResult> Withdraw(int id, [FromBody] decimal amount)
         {
+            if (amount <= 0) return BadRequest("Invalid amount");
+
             var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
-                return NotFound();
-
-            if (amount <= 0)
-                return BadRequest("Withdrawal amount must be positive");
-
-            if (account.Balance < amount)
-                return BadRequest("Insufficient funds");
+            if (account == null || account.Balance < amount) return BadRequest("Insufficient funds");
 
             account.Balance -= amount;
-
-            var transaction = new Transaction
+            _context.Transactions.Add(new Transaction
             {
                 AccountId = id,
                 Amount = -amount,
                 Type = "Withdrawal",
                 Date = DateTime.UtcNow
-            };
-            _context.Transactions.Add(transaction);
+            });
 
             await _context.SaveChangesAsync();
-            return Ok(account);
+            return Ok();
         }
 
         [HttpPost("transfer")]
-        public async Task<ActionResult> Transfer([FromBody] TransferRequest request)
+        public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
         {
-            var sourceAccount = await _context.Accounts.FindAsync(request.FromAccountId);
-            var targetAccount = await _context.Accounts.FindAsync(request.ToAccountId);
+            if (request.Amount <= 0) return BadRequest("Invalid amount");
 
-            if (sourceAccount == null || targetAccount == null)
-                return NotFound("One or both accounts not found");
+            var from = await _context.Accounts.FindAsync(request.FromAccountId);
+            var to = await _context.Accounts.FindAsync(request.ToAccountId);
+            if (from == null || to == null || from.Balance < request.Amount) return BadRequest("Transfer error");
 
-            if (request.Amount <= 0)
-                return BadRequest("Transfer amount must be positive");
+            from.Balance -= request.Amount;
+            to.Balance += request.Amount;
 
-            if (sourceAccount.Balance < request.Amount)
-                return BadRequest("Insufficient funds");
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            _context.Transactions.AddRange(new[]
             {
-                sourceAccount.Balance -= request.Amount;
-                targetAccount.Balance += request.Amount;
+                new Transaction { AccountId = from.Id, Amount = -request.Amount, Type = "Transfer Out", Date = DateTime.UtcNow },
+                new Transaction { AccountId = to.Id, Amount = request.Amount, Type = "Transfer In", Date = DateTime.UtcNow }
+            });
 
-                var withdrawalTx = new Transaction
-                {
-                    AccountId = request.FromAccountId,
-                    Amount = -request.Amount,
-                    Type = "Transfer Out",
-                    Date = DateTime.UtcNow
-                };
-                var depositTx = new Transaction
-                {
-                    AccountId = request.ToAccountId,
-                    Amount = request.Amount,
-                    Type = "Transfer In",
-                    Date = DateTime.UtcNow
-                };
-
-                _context.Transactions.AddRange(withdrawalTx, depositTx);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Ok(new { Message = "Transfer successful" });
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, "Transfer failed");
-            }
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpGet("accounts/{id}/transactions")]
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(int id)
+        public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactions(int id)
         {
-            return await _context.Transactions
+            var transactions = await _context.Transactions
                 .Where(t => t.AccountId == id)
                 .OrderByDescending(t => t.Date)
+                .Select(t => new TransactionDto
+                {
+                    Date = t.Date,
+                    Type = t.Type,
+                    Amount = t.Amount
+                })
                 .ToListAsync();
-        }
 
-        [HttpPost("accounts")]
-        public async Task<ActionResult<Account>> CreateAccount([FromBody] Account account)
-        {
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetBalance), new { id = account.Id }, account);
-        }
-
-        [HttpGet("accounts/{id}")]
-        public async Task<ActionResult<Account>> GetAccount(int id)
-        {
-            var account = await _context.Accounts
-                .Include(a => a.Transactions)
-                .FirstOrDefaultAsync(a => a.Id == id);
-
-            if (account == null)
-                return NotFound();
-
-            return account;
+            return Ok(transactions);
         }
     }
 
@@ -199,3 +129,4 @@ namespace BankBlazor.Server.Controllers
         public decimal Amount { get; set; }
     }
 }
+
