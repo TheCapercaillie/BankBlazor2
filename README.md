@@ -26,9 +26,9 @@ Banking Operations: Deposit money, Withdraw funds, Transfer between accounts
 6. Fixed bugs and made UI improvements
 
 ## Project Structure  
-Directory structure:
+**Directory structure:**
 
-BankBlazor.Client/
+**BankBlazor.Client/**
 _Imports.razor
 App.razor
 BankBlazor.Client.csproj
@@ -55,7 +55,7 @@ wwwroot/
          bootstrap/
       images/
       
-BankBlazor.Server/
+**BankBlazor.Server/**
 appsettings.Development.json
 appsettings.json
 BankBlazor.Server.csproj
@@ -79,7 +79,7 @@ Models/
 Properties/
    launchSettings.json
    
-BankBlazor.Shared/
+**BankBlazor.Shared/**
 BankBlazor.Shared.csproj
 Models/
    DTOs/
